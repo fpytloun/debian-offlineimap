@@ -12,6 +12,7 @@ Build-Depends:
  xsltproc,
  docbook-xml,
  libxml2-utils
+X-Python-Version: >= 2.7
 Standards-Version: 3.9.5
 Homepage: http://offlineimap.org/
 
