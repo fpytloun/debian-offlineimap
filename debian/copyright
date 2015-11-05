@@ -1,24 +1,56 @@
-This is offlineimap, written and maintained by John Goerzen <jgoerzen@complete.org>
-on Fri, 21 Jun 2002 14:54:56 -0500.
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: OfflineIMAP
+Source: http://offlineimap.org
 
-The original source can always be found at:
-        https://github.com/OfflineIMAP/offlineimap
+Files: *
+Copyright: 2002-2015, John Goerzen & contributors
+           2008, Riccardo Murri <riccardo.murri@gmail.com>
+           2009-2011, Stewart Smith and contributors
+           2013-2014, Eygene A. Ryabinkin and contributors
+           2010-2015, Sebastian Spaeth & contributors
+License: GPL-2+ with OpenSSL exception
 
-Copyright © 2002 - 2009 John Goerzen
+Files: scripts/get-repository.sh
+Copyright: Public Domain
+License: public-domain
+ This file is in the public domain.
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+Files: debian/*
+Copyright: 2015, Dimitri John Ledkov <xnox@debian.org>
+           2015, Ilias Tsitsimpis <i.tsitsimpis@gmail.com>
+License: GPL-2+ with OpenSSL exception
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License with
-  the Debian GNU/Linux distribution in file /usr/share/common-licenses/GPL-2;
-  if not, write to the  Free Software Foundation, Inc., 51 Franklin St,
-  Fifth Floor, Boston, MA 02110-1301, USA.
-
-
+License: GPL-2+ with OpenSSL exception
+ This program is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
+ version.
+ .
+ In addition, as a special exception, the copyright holders give
+ permission to link the code of portions of this program with the OpenSSL
+ library under certain conditions as described in each individual source
+ file, and distribute linked combinations including the two.
+ .
+ You must obey the GNU General Public License in all respects for all of
+ the code used other than OpenSSL. If you modify file(s) with this
+ exception, you may extend this exception to your version of the file(s),
+ but you are not obligated to do so. If you do not wish to do so, delete
+ this exception statement from your version. If you delete this exception
+ statement from all source files in the program, then also delete it
+ here.
+ .
+ This program is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the GNU General Public License for more
+ details.
+ .
+ You should have received a copy of the GNU General Public
+ License along with this package; if not, write to the Free
+ Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.
