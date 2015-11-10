@@ -8,6 +8,7 @@ Build-Depends:
  python,
  dh-python,
  python-setuptools,
+ python-imaplib2,
  asciidoc,
  xsltproc,
  docbook-xml,
@@ -18,7 +19,10 @@ Homepage: http://offlineimap.org/
 
 Package: offlineimap
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
+Depends:
+ python-imaplib2,
+ ${misc:Depends},
+ ${python:Depends}
 Recommends: python-sqlite
 Suggests: python-kerberos, doc-base
 Description: IMAP/Maildir synchronization and reader support
