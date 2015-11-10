@@ -1,6 +1,9 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: OfflineIMAP
 Source: http://offlineimap.org
+Files-Excluded:
+ docs/rfcs
+ offlineimap/imaplib2.py
 
 Files: *
 Copyright: 2002-2015, John Goerzen & contributors

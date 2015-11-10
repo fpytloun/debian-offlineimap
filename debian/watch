@@ -1,5 +1,7 @@
 version=3
 
 opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/offlineimap-$1\.tar\.gz/,\
+repacksuffix=+dfsg1,\
+dversionmangle=s/\+dfsg\d+$//,\
 uversionmangle=s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\d*)$/$1~$2/ \
 https://github.com/OfflineIMAP/offlineimap/tags .*/v?(\d\S*)\.tar\.gz
