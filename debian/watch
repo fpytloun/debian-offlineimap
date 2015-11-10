@@ -1,3 +1,5 @@
 version=3
-opts="uversionmangle=s/-rc/~rc/" \
-http://githubredir.debian.net/github/OfflineIMAP/offlineimap .*/v(.*).tar.gz
+
+opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/offlineimap-$1\.tar\.gz/,\
+uversionmangle=s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\d*)$/$1~$2/ \
+https://github.com/OfflineIMAP/offlineimap/tags .*/v?(\d\S*)\.tar\.gz
