@@ -1,11 +1,34 @@
 #!/usr/bin/make -f
 
-%:
-	dh $@ --buildsystem=python_distutils --with=python2,sphinxdoc
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
 
+export PYBUILD_NAME=offlineimap
+
+# Python applications should have their module private
+# These modules should be installed in /usr/share/<module-name>
+export PYBUILD_INSTALL_ARGS=--install-lib=/usr/share/offlineimap/
+
+# Scripts should be installed to the same (private) directory.
+# We cannot use --install-scripts in PYBUILD_INSTALL_ARGS since
+# module name and script name are the same.
+export PYBUILD_AFTER_INSTALL=\
+	mv {destdir}/usr/bin/offlineimap {destdir}/usr/share/offlineimap/run
+
+# Tests require a valid IMAP account in order to run (see test/README).
+# Disable them for now.
+export PYBUILD_DISABLE=test
+
+
+%:
+	dh $@ --buildsystem=pybuild --with=python2,sphinxdoc
+
+.PHONY: override_dh_auto_build
 override_dh_auto_build:
 	dh_auto_build
-	make man doc
+	make docs
 
-override_dh_installchangelogs:
-	dh_installchangelogs Changelog.html
+.PHONY: override_dh_auto_clean
+override_dh_auto_clean:
+	dh_auto_clean
+	make clean
