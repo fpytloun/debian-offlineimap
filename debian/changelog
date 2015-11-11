@@ -1,3 +1,12 @@
+offlineimap (6.6.0~rc3+dfsg1-1~1.gbp7db260) UNRELEASED; urgency=medium
+
+  ** SNAPSHOT build @7db260930f390366fbcaf75f39975001c2227fc6 **
+
+  * Team upload
+  * New upstream release
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Wed, 11 Nov 2015 16:57:40 +0200
+
 offlineimap (6.5.5-0.1) unstable; urgency=low
 
   * Non-maintainer upload
