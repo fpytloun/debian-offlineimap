@@ -1,218 +1,100 @@
-OfflineImap
-===========
+[offlineimap]: http://github.com/OfflineIMAP/offlineimap
+[website]: http://offlineimap.org
+[wiki]: http://github.com/OfflineIMAP/offlineimap/wiki
+[blog]: http://offlineimap.org/posts.html
 
-Description
------------
+# OfflineIMAP
 
-OfflineIMAP is a tool to simplify your e-mail reading. With OfflineIMAP, you can
-read the same mailbox from multiple computers. You get a current copy of your
-messages on each computer, and changes you make one place will be visible on all
-other systems. For instance, you can delete a message on your home computer, and
-it will appear deleted on your work computer as well. OfflineIMAP is also useful
-if you want to use a mail reader that does not have IMAP support, has poor IMAP
-support, or does not provide disconnected operation. It's homepage at
-http://offlineimap.org contains more information, source code, and online
-documentation.
+## Description
 
-OfflineIMAP does not require additional python dependencies beyond python >=2.6
-(although python-sqlite is strongly recommended).
+OfflineIMAP is a software to dispose your e-mail mailbox(es) as a **local
+Maildir**. OfflineIMAP will synchronize both sides via *IMAP*.
 
-OfflineIMAP is a Free Software project licensed under the GNU General Public
-License version 2 (or later). You can download it for free, and you can modify
-it. In fact, you are encouraged to contribute to OfflineIMAP.
+The main downside about IMAP is that you have to **trust** your email provider to
+not lose your mails. This is not something impossible while not very common.
+With OfflineIMAP, you can download your Mailboxes and make you own backups of
+the [Maildir](https://en.wikipedia.org/wiki/Maildir).
 
-Documentation
--------------
-
-The documentation is included (in .rst format) in the `docs` directory.
-Read it directly or generate nice html docs (python-sphinx needed) and/or
-the man page (python-docutils needed) while being in the `docs` dir via:
-
-    'make doc' (user docs), 'make man' (man page only) or 'make' (both)
-
-    (`make html` will simply create html versions of all *.rst files in /docs)
-
-The resulting user documentation will be in `docs/html`. The full user
-docs are also at: http://docs.offlineimap.org. Please see there for
-detailed information on how to install and configure OfflineImap.
-
-Quick Start
-===========
-
-First, install OfflineIMAP. See docs/INSTALL.rst or read
-http://docs.offlineimap.org/en/latest/INSTALL.html.
-(hint: `sudo python setup.py install`)
-
-Second, set up your configuration file and run it! The distribution
-includes offlineimap.conf.minimal (Debian users may find this at
-``/usr/share/doc/offlineimap/examples/offlineimap.conf.minimal``) that
-provides you with the bare minimum of setting up OfflineIMAP.  You can
-simply copy this file into your home directory and name it
-``.offlineimaprc``.  A command such as ``cp offlineimap.conf.minimal
-~/.offlineimaprc`` will do it.  Or, if you prefer, you can just copy
-this text to ``~/.offlineimaprc``:
-
-    [general]
-    accounts = Test
-
-    [Account Test]
-    localrepository = Local
-    remoterepository = Remote
-
-    [Repository Local]
-    type = Maildir
-    localfolders = ~/Test
-
-    [Repository Remote]
-    type = IMAP
-    remotehost = examplehost
-    remoteuser = jgoerzen
+This allows reading your email while offline without the need for the mail
+reader (MUA) to support IMAP disconnected operations. Need an attachment from a
+message without internet connection? It's fine, the message is still there.
 
 
-Now, edit the ``~/.offlineimaprc`` file with your favorite editor.  All you have
-to do is specify a directory for your folders to be in (on the localfolders
-line), the host name of your IMAP server (on the remotehost line), and your
-login name on the remote (on the remoteuser line).  That's it!
+## License
 
-To run OfflineIMAP, you just have to say `offlineimap` ― it will fire
-up, ask you for a login password if necessary, synchronize your folders,
-and exit.  See?
-
-You can just throw away the rest of the finely-crafted, perfectly-honed user
-manual!  Of course, if you want to see how you can make OfflineIMAP
-FIVE TIMES FASTER FOR JUST $19.95 (err, well, $0), you have to read on our
-full user documentation and peruse the sample offlineimap.conf (which
-includes all available options) for further tweaks!
+GNU General Public License v2.
 
 
-Mailing list & bug reporting
-----------------------------
+## Why should I use OfflineIMAP?
 
-The user discussion, development and all exciting stuff take place in the
-OfflineImap mailing list at
-http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project. You do not
-need to subscribe to send emails.
-
-Bugs, issues and contributions should be reported to the mailing list. Bugs can
-also be reported in the issue tracker at
-https://github.com/OfflineIMAP/offlineimap/issues.
-
-Configuration Examples
-======================
-
-Here are some example configurations for various situations.  Please e-mail any
-other examples you have that may be useful to me.
+* It is **fast**.
+* It is **reliable**.
+* It is **flexible**.
+* It is **safe**.
 
 
-Multiple Accounts with Mutt
----------------------------
+## Project status and future
 
-This example shows you how to set up OfflineIMAP to synchronize multiple
-accounts with the mutt mail reader.
+> As one of the maintainer of OfflineIMAP, I'd like to put my efforts into
+> [imapfw](http://github.com/OfflineIMAP/imapfw). **imapfw** is a software in
+> development that I intend to replace OfflineIMAP in the long term.
+>
+> That's why I'm not going to do development in OfflineIMAP. I continue to do
+> the minimal maintenance job in OfflineIMAP: fixing small bugs, (quick)
+> reviewing/merging patches and rolling out new releases, but that's all.
+>
+> While I keep tracking issues for OfflineIMAP, you should not expect support
+> from me anymore.
+>
+> You won't be left at the side. OfflineIMAP's community is large enough so that
+> you'll find people for most of your issues.
+>
+> Get news from the [blog][blog].
+>
+>                                  Nicolas Sebrecht. ,-)
 
-Start by creating a directory to hold your folders by running ``mkdir ~/Mail``.
-Then, in your ``~/.offlineimaprc``, specify:
+## Downloads
 
-    accounts = Personal, Work
-
-
-Make sure that you have both an [Account Personal] and an [Account Work]
-section.  The local repository for each account must have different localfolder
-path names.  Also, make sure to enable [mbnames].
-
-In each local repository section, write something like this:
-
-    localfolders = ~/Mail/Personal
-
-
-Finally, add these lines to your ``~/.muttrc``:
-
-    source ~/path-to-mbnames-muttrc-mailboxes
-    folder-hook Personal set from="youremail@personal.com"
-    folder-hook Work set from="youremail@work.com"
-    set mbox_type=Maildir
-    set folder=$HOME/Mail
-    spoolfile=+Personal/INBOX
+You should first check if your distribution already packages OfflineIMAP for you.
+Downloads releases as [tarball or zipball](https://github.com/OfflineIMAP/offlineimap/tags).
 
 
-That's it!
+## Feedbacks and contributions
+
+**The user discussions, development, announcements and all the exciting stuff take
+place on the mailing list.** While not mandatory to send emails, you can
+[subscribe here](http://lists.alioth.debian.org/mailman/listinfo/offlineimap-project).
+
+Bugs, issues and contributions can be requested to both the mailing list or the
+[official Github project][offlineimap].
 
 
-UW-IMAPD and References
------------------------
+## The community
 
-Some users with a UW-IMAPD server need to use OfflineIMAP's "reference" feature
-to get at their mailboxes, specifying a reference of ``~/Mail`` or ``#mh/``
-depending on the configuration.  The below configuration from (originally from
-docwhat@gerf.org) shows using a reference of Mail, a nametrans that strips the
-leading Mail/ off incoming folder names, and a folderfilter that limits the
-folders synced to just three:
-
-    [Account Gerf]
-    localrepository = GerfLocal
-    remoterepository = GerfRemote
-
-    [Repository GerfLocal]
-    type = Maildir
-    localfolders = ~/Mail
-
-    [Repository GerfRemote]
-    type = IMAP
-    remotehost = gerf.org
-    ssl = yes
-    remoteuser = docwhat
-    reference = Mail
-    # Trims off the preceeding Mail on all the folder names.
-    nametrans = lambda foldername: \
-    re.sub('^Mail/', '', foldername)
-    # Yeah, you have to mention the Mail dir, even though it
-    # would seem intuitive that reference would trim it.
-    folderfilter = lambda foldername: foldername in [
-    'Mail/INBOX',
-    'Mail/list/zaurus-general',
-    'Mail/list/zaurus-dev',
-    ]
-    maxconnections = 1
-    holdconnectionopen = no
+* OfflineIMAP's main site is the [project page at Github][offlineimap].
+* There is the [OfflineIMAP community's website][website].
+* And finally, [the wiki][wiki].
 
 
-pythonfile Configuration File Option
--------------------------------------
+## Requirements
 
-You can have OfflineIMAP load up a Python file before evaluating the
-configuration file options that are Python expressions.  This example is based
-on one supplied by Tommi Virtanen for this feature.
-
-
-In ~/.offlineimaprc, he adds these options:
-
-    [general]
-    pythonfile=~/.offlineimap.py
-    [Repository foo]
-    foldersort=mycmp
-
-Then, the ~/.offlineimap.py file will contain:
-
-  prioritized = ['INBOX', 'personal', 'announce', 'list']
-
-    def mycmp(x, y):
-        for prefix in prioritized:
-            xsw = x.startswith(prefix)
-            ysw = y.startswith(prefix)
-            if xsw and ysw:
-                return cmp(x, y)
-            elif xsw:
-                return -1
-            elif ysw:
-                return +1
-        return cmp(x, y)
-
-    def test_mycmp():
-        import os, os.path
-        folders=os.listdir(os.path.expanduser('~/data/mail/tv@hq.yok.utu.fi'))
-        folders.sort(mycmp)
-        print folders
+* Python v2.7
+* Python SQlite (optional while recommended)
+* Python json and urllib (used for XOAuth2 authentication)
 
 
-This code snippet illustrates how the foldersort option can be customized with a
-Python function from the pythonfile to always synchronize certain folders first.
+## Documentation
+
+All the current and updated documentation is at the [community's website][website].
+
+### Read documentation locally
+
+You might want to read the documentation locally. Get the sources of the website.
+For the other documentation, run the appropriate make target:
+```
+$ ./scripts/get-repository.sh website
+$ cd docs
+$ make html  # Requires rst2html
+$ make man   # Requires a2x
+$ make api   # Requires sphinx
+```
