@@ -21,14 +21,9 @@ export PYBUILD_DISABLE=test
 
 
 %:
-	dh $@ --buildsystem=pybuild --with=python2,sphinxdoc
+	dh $@ --buildsystem=pybuild --with=python2
 
 .PHONY: override_dh_auto_build
 override_dh_auto_build:
 	dh_auto_build
-	make docs
-
-.PHONY: override_dh_auto_clean
-override_dh_auto_clean:
-	dh_auto_clean
-	make clean
+	make -C docs man
