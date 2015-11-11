@@ -29,12 +29,15 @@ class GmailRepository(IMAPRepository):
     # Gmail IMAP server port
     PORT = 993
 
+    OAUTH2_URL = 'https://accounts.google.com/o/oauth2/token'
+
     def __init__(self, reposname, account):
         """Initialize a GmailRepository object."""
         # Enforce SSL usage
         account.getconfig().set('Repository ' + reposname,
                                 'ssl', 'yes')
         IMAPRepository.__init__(self, reposname, account)
+
 
     def gethost(self):
         """Return the server name to connect to.
@@ -47,6 +50,20 @@ class GmailRepository(IMAPRepository):
             # nothing was configured, cache and return hardcoded one
             self._host = GmailRepository.HOSTNAME
             return self._host
+
+    def getoauth2_request_url(self):
+        """Return the server name to connect to.
+
+        Gmail implementation first checks for the usual IMAP settings
+        and falls back to imap.gmail.com if not specified."""
+
+        url = super(GmailRepository, self).getoauth2_request_url()
+        if url is None:
+            # Nothing was configured, cache and return hardcoded one.
+            self._oauth2_request_url = GmailRepository.OAUTH2_URL
+        else:
+            self._oauth2_request_url = url
+        return self._oauth2_request_url
 
     def getport(self):
         return GmailRepository.PORT
@@ -71,4 +88,3 @@ class GmailRepository(IMAPRepository):
     def getspamfolder(self):
         #: Gmail also deletes messages upon EXPUNGE in the Spam folder
         return  self.getconf('spamfolder','[Gmail]/Spam')
-
