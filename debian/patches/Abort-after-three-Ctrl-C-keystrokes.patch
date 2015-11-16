@@ -1,0 +1,36 @@
+From: Ilias Tsitsimpis <i.tsitsimpis@gmail.com>
+Date: Mon, 16 Nov 2015 18:29:24 +0200
+Subject: Abort after three Ctrl-C keystrokes
+
+By default, OfflineIMAP catches SIGTERM/SIGHUP/SIGINT and attempts to
+gracefully terminate as soon as possible. Allow the user to abort
+immediately, by hitting Ctrl-C several times.
+
+Bug-Debian: https://bugs.debian.org/679975
+Forwarded: no
+---
+ offlineimap/init.py | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/offlineimap/init.py b/offlineimap/init.py
+index bc13c5c..846a3f8 100644
+--- a/offlineimap/init.py
++++ b/offlineimap/init.py
+@@ -321,10 +321,17 @@ class OfflineImap:
+                     getglobalui().warn("Terminating NOW (this may "\
+                                        "take a few seconds)...")
+                     accounts.Account.set_abort_event(self.config, 3)
++
++                    # Abort after three Ctrl-C keystrokes
++                    self.num_sigterm += 1
++                    if self.num_sigterm >= 3:
++                        getglobalui().warn("Signaled thrice. Aborting!")
++                        sys.exit(1)
+                 elif sig == signal.SIGQUIT:
+                     stacktrace.dump(sys.stderr)
+                     os.abort()
+ 
++            self.num_sigterm = 0
+             signal.signal(signal.SIGHUP, sig_handler)
+             signal.signal(signal.SIGUSR1, sig_handler)
+             signal.signal(signal.SIGUSR2, sig_handler)

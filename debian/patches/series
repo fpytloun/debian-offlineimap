@@ -1,2 +1,3 @@
 Use-imaplib2-package-instead-of-embedded-copy.patch
 Fix-typos-in-offlineimap-1-manpage.patch
+Abort-after-three-Ctrl-C-keystrokes.patch
