@@ -1,11 +1,47 @@
-offlineimap (6.6.0~rc3+dfsg1-1~1.gbp7db260) UNRELEASED; urgency=medium
-
-  ** SNAPSHOT build @7db260930f390366fbcaf75f39975001c2227fc6 **
+offlineimap (6.6.0~rc3+dfsg1-1) unstable; urgency=medium
 
   * Team upload
   * New upstream release
+    (Closes: #747033, #629264, #745822, #760960, #785594, #648863, #343924)
+  * Update build dependencies
+    - Add dh-python and python-setuptools, required to build Python modules
+    - Remove python-sphinx, since we are not shipping documentation anymore
+    - Add asciidoc, xsltproc, docbook-xml and libxml2-utils,
+      required to build the manpages (Closes: #680856)
+  * Add X-Python-Version field in d/control
+  * Bump Standards Version to 3.9.6.
+    No changes to the source package.
+  * Convert d/copyright to DEP-5 and update its entries (Closes: #655721)
+  * Update d/watch file according to wiki.d.o/watch
+  * Create a DFSG version of the package
+    - Remove non free IETF documents
+    - Remove embedded copy of imaplib2
+  * Remove improve_man_page patch.
+    Manpages have been rewritten.
+  * Don't use embedded copy of imaplib2 (Closes: #728445)
+  * Add python-imaplib2 to package dependencies
+  * Install offlineimapui.7 manpage
+  * d/patches: Fix typos in offlineimap(1) manpage
+  * Update d/rules to build newer version
+    - Use pybuild instead of python_distutils.
+    - Don't export OfflineIMAP's Python modules
+      Python applications should ship only private modules, according
+      to the Debian Python Policy.
+    - Disable tests since they require a valid IMAP account.
+  * Don't install documentation.
+    OfflineIMAP's manual and FAQ have been moved by upstream to another
+    package (OfflineIMAP/offlineimap.github.io). Only developer's
+    documentation is included, which is not needed to be installed alongside
+    this package.
+  * Remove python-sqlite from the recommended packages.
+    OfflineIMAP uses sqlite3 to access the sqlite database which
+    is provided by Python itself. (Closes: #715516)
+  * Add python-pysocks to the recommended packages
+  * d/patches: Abort after three Ctrl-C keystrokes.
+    Thanks to Wouter Verhelst for the patch (Closes: #679975)
+  * Document changes in NEWS
 
- -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Wed, 11 Nov 2015 16:57:40 +0200
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 17 Nov 2015 16:44:19 +0200
 
 offlineimap (6.5.5-0.1) unstable; urgency=low
 
