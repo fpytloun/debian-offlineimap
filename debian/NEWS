@@ -1,3 +1,16 @@
+offlineimap (6.6.0~rc3+dfsg1-1) UNRELEASED; urgency=medium
+
+  OfflineIMAP has now SSL enabled by default to prevent sending private
+  data in clear. The 'maxage' feature has also been removed for IMAP-to-IMAP
+  sync since it was broken. Instead, a new option (named 'startdate') has
+  been introduced, designed for IMAP/IMAP setups only.
+
+  As for the Debian package, OfflineIMAP is now treated as a Python
+  application (i.e., its modules are private) and uses the python-imaplib2
+  package instead of an embedded copy.
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 17 Nov 2015 15:59:10 +0200
+
 offlineimap (6.5.4-1) unstable; urgency=low
 
   offlineimap.conf:
