@@ -8,7 +8,7 @@ Build-Depends:
  python,
  dh-python,
  python-setuptools,
- python-imaplib2,
+ python-imaplib2 (>= 2.50),
  asciidoc,
  xsltproc,
  docbook-xml,
@@ -20,7 +20,7 @@ Homepage: http://offlineimap.org/
 Package: offlineimap
 Architecture: all
 Depends:
- python-imaplib2,
+ python-imaplib2 (>= 2.50),
  ${misc:Depends},
  ${python:Depends}
 Recommends: python-pysocks
