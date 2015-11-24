@@ -1,6 +1,6 @@
 offlineimap (6.6.0~rc3+dfsg1-1) unstable; urgency=medium
 
-  * Team upload
+  [ Ilias Tsitsimpis ]
   * New upstream release
     (Closes: #747033, #629264, #745822, #760960, #785594, #648863, #343924)
   * Update build dependencies
@@ -41,7 +41,12 @@ offlineimap (6.6.0~rc3+dfsg1-1) unstable; urgency=medium
     Thanks to Wouter Verhelst for the patch (Closes: #679975)
   * Document changes in NEWS
 
- -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 17 Nov 2015 16:44:19 +0200
+  [ Dimitri John Ledkov ]
+  * Set Ilias as maintainer, mark myself as uploader.
+  * Add versioned dependency on python-imaplib2, to pull a version that
+    re-exports zlib module.
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 24 Nov 2015 13:59:19 +0200
 
 offlineimap (6.5.5-0.1) unstable; urgency=low
 

@@ -1,8 +1,8 @@
 Source: offlineimap
 Section: mail
 Priority: optional
-Maintainer: Dmitrijs Ledkovs <xnox@debian.org>
-Uploaders: John Francesco Ferlito <johnf@inodes.org>
+Maintainer: Ilias Tsitsimpis <i.tsitsimpis@gmail.com>
+Uploaders: Dimitri John Ledkov <xnox@debian.org>
 Build-Depends:
  debhelper (>= 9),
  python,
