@@ -40,6 +40,7 @@ offlineimap (6.6.0~rc3+dfsg1-1) unstable; urgency=medium
   * d/patches: Abort after three Ctrl-C keystrokes.
     Thanks to Wouter Verhelst for the patch (Closes: #679975)
   * Document changes in NEWS
+  * Add Vcs-Git and Vcs-Browser fields in d/control
 
   [ Dimitri John Ledkov ]
   * Set Ilias as maintainer, mark myself as uploader.
