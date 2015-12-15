@@ -1,3 +1,11 @@
+offlineimap (6.6.0+dfsg1-1) unstable; urgency=medium
+
+  * New upstream release
+  * Add missing docbook-xsl build dependency
+  * Update patches to apply cleanly on new upstream
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 15 Dec 2015 11:49:50 +0200
+
 offlineimap (6.6.0~rc3+dfsg1-1) unstable; urgency=medium
 
   [ Ilias Tsitsimpis ]
