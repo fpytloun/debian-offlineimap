@@ -12,6 +12,7 @@ Build-Depends:
  asciidoc,
  xsltproc,
  docbook-xml,
+ docbook-xsl,
  libxml2-utils
 X-Python-Version: >= 2.7
 Standards-Version: 3.9.6
