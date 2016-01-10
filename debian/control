@@ -8,6 +8,7 @@ Build-Depends:
  python,
  dh-python,
  python-setuptools,
+ faketime,
  python-imaplib2 (>= 2.50),
  asciidoc,
  xsltproc,
