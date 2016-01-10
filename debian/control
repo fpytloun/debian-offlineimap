@@ -26,7 +26,7 @@ Depends:
  python-imaplib2 (>= 2.50),
  ${misc:Depends},
  ${python:Depends}
-Recommends: python-pysocks
+Recommends: python-socks
 Suggests: python-kerberos, doc-base
 Description: IMAP/Maildir synchronization and reader support
  OfflineIMAP is a tool to simplify your e-mail reading.  With
