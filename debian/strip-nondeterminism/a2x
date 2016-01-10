@@ -1,0 +1,12 @@
+#!/bin/sh
+# Depends: faketime
+# Eventually the upstream tool should support SOURCE_DATE_EPOCH internally.
+
+test -n "$SOURCE_DATE_EPOCH" || { echo >&2 "$0: SOURCE_DATE_EPOCH not set"; exit 255; }
+
+if faketime 'last friday' date > /dev/null 2> /dev/null; then
+    exec faketime -f "`TZ=UTC date -d @$SOURCE_DATE_EPOCH +'%Y-%m-%d %H:%M:%S'`" \
+        /usr/bin/a2x "$@"
+else
+    exec /usr/bin/a2x "$@"
+fi

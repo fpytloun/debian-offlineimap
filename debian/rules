@@ -19,6 +19,11 @@ export PYBUILD_AFTER_INSTALL=\
 # Disable them for now.
 export PYBUILD_DISABLE=test
 
+# Reproducable builds
+# https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
+export PATH := $(CURDIR)/debian/strip-nondeterminism:$(PATH)
+export SOURCE_DATE_EPOCH = $(shell date -d "$$(dpkg-parsechangelog -SDate)" +%s)
+
 
 %:
 	dh $@ --buildsystem=pybuild --with=python2
