@@ -1,3 +1,17 @@
+offlineimap (6.6.1+dfsg1-2) unstable; urgency=low
+
+  * Recommend python-socks instead of python-pysocks.
+    Both provide the same module and the first has been marked for removal.
+    (Closes: #810307)
+  * Use 'https://' instead of 'git://' in Vcs-Git field
+  * Prevent a2x from connecting to the Internet
+  * Add faketime to build dependencies
+  * Improve reproducibility of documentation build.
+    Patch a2x tool to use the date of the latest entry in d/changelog
+    file for the generated documentation.
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Mon, 11 Jan 2016 12:28:24 +0200
+
 offlineimap (6.6.1+dfsg1-1) unstable; urgency=medium
 
   * New upstream release (Closes: #677166)
