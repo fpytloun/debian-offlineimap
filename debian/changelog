@@ -1,3 +1,11 @@
+offlineimap (6.7.0+dfsg1-1~1.gbp4687d4) UNRELEASED; urgency=low
+
+  ** SNAPSHOT build @4687d417f59aef630fc46d3225073c638f7ca819 **
+
+  * UNRELEASED
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Mon, 21 Mar 2016 15:56:40 +0200
+
 offlineimap (6.6.1+dfsg1-2) unstable; urgency=low
 
   * Recommend python-socks instead of python-pysocks.
