@@ -28,7 +28,7 @@ Depends:
  ${misc:Depends},
  ${python:Depends}
 Recommends: python-socks
-Suggests: python-kerberos, doc-base
+Suggests: python-kerberos
 Description: IMAP/Maildir synchronization and reader support
  OfflineIMAP is a tool to simplify your e-mail reading.  With
  OfflineIMAP, you can:
