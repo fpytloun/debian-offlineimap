@@ -6,7 +6,7 @@ Files-Excluded:
  offlineimap/imaplib2.py
 
 Files: *
-Copyright: 2002-2015, John Goerzen & contributors
+Copyright: 2002-2016, John Goerzen & contributors
            2008, Riccardo Murri <riccardo.murri@gmail.com>
            2009-2011, Stewart Smith and contributors
            2013-2014, Eygene A. Ryabinkin and contributors
@@ -20,7 +20,7 @@ License: public-domain
 
 Files: debian/*
 Copyright: 2015, Dimitri John Ledkov <xnox@debian.org>
-           2015, Ilias Tsitsimpis <i.tsitsimpis@gmail.com>
+           2015-2016, Ilias Tsitsimpis <i.tsitsimpis@gmail.com>
 License: GPL-2+ with OpenSSL exception
 
 License: GPL-2+ with OpenSSL exception
