@@ -29,7 +29,7 @@ index 5a26051..cdfddcd 100644
  
  # Globals
 diff --git a/offlineimap/imaplibutil.py b/offlineimap/imaplibutil.py
-index 952404a..b102e63 100644
+index 9b1095b..1bceb85 100644
 --- a/offlineimap/imaplibutil.py
 +++ b/offlineimap/imaplibutil.py
 @@ -26,7 +26,7 @@ import errno
@@ -42,7 +42,7 @@ index 952404a..b102e63 100644
  
  class UsefulIMAPMixIn(object):
 diff --git a/offlineimap/init.py b/offlineimap/init.py
-index beb90de..68486b5 100644
+index 636db5d..03b5f6c 100644
 --- a/offlineimap/init.py
 +++ b/offlineimap/init.py
 @@ -18,7 +18,7 @@
