@@ -29,6 +29,7 @@ CHANGELOG='Changelog.md'
 CACHEDIR='.git/offlineimap-release'
 WEBSITE='website'
 WEBSITE_LATEST="${WEBSITE}/_data/latest.yml"
+ME='Nicolas Sebrecht'
 
 TMP_CHANGELOG_EXCERPT="${CACHEDIR}/changelog.excerpt.md"
 TMP_CHANGELOG_EXCERPT_OLD="${TMP_CHANGELOG_EXCERPT}.old"
@@ -154,7 +155,19 @@ function update_offlineimap_version () {
 #
 function get_git_history () {
   debug 'in get_git_history'
-  git log --oneline "${1}.." | sed -r -e 's,^(.),\- \1,'
+  git log --format='- %h %s. [%aN]' --no-merges  "${1}.." | \
+          sed -r -e "s, \[${ME}\]$,,"
+}
+
+
+#
+# $1: previous version
+#
+function get_git_who () {
+  debug 'in get_git_who'
+  echo
+  git shortlog --no-merges -sn "${1}.." | \
+          sed -r -e 's, +([0-9]+)\t(.*),- \2 (\1),'
 }
 
 
@@ -178,8 +191,15 @@ function changelog_template () {
 
 #### Notes
 
-// Add some notes. Good notes are about what was done in this release.
-// HINT: explain big changes.
+// Add some notes. Good notes are about what was done in this release from the
+// bigger perspective.
+// HINT: explain most important changes.
+
+#### Authors
+
+The authors of this release.
+
+// Use list syntax with '- '
 
 #### Features
 
@@ -193,8 +213,8 @@ function changelog_template () {
 
 // Use list syntax with '- '
 
-// The preformatted shortlog was added below.
-// Make use of this to fill the sections 'Features' and 'Fixes' above.
+// The preformatted log was added below. Make use of this to fill the sections
+// above.
 
 EOF
 }
@@ -213,6 +233,7 @@ function update_changelog () {
   then
     changelog_template "$1" > "$TMP_CHANGELOG_EXCERPT"
     get_git_history "$2" >> "$TMP_CHANGELOG_EXCERPT"
+    get_git_who "$2" >> "$TMP_CHANGELOG_EXCERPT"
     edit_file "the Changelog excerpt" $TMP_CHANGELOG_EXCERPT
 
     # Remove comments.
@@ -353,6 +374,9 @@ OfflineIMAP $1 is out.
 Downloads:
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.tar.gz
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.zip
+
+Pip:
+  pip install --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
 EOF
 }
 
@@ -434,6 +458,7 @@ Command samples to do manually:
 - git push <remote> master:master
 - git push <remote> next:next
 - git push <remote> $new_version
+- python setup.py sdist && twine upload dist/* && rm -rf dist MANIFEST
 - cd website
 - git checkout master
 - git merge $branch_name
