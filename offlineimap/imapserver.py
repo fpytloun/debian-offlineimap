@@ -23,6 +23,7 @@ import base64
 import json
 import urllib
 
+import socket
 import time
 import errno
 from sys import exc_info
@@ -80,6 +81,13 @@ class IMAPServer:
         self.goodpassword = None
 
         self.usessl = repos.getssl()
+        self.useipv6 = repos.getipv6()
+        if self.useipv6 == True:
+            self.af = socket.AF_INET6
+        elif self.useipv6 == False:
+            self.af = socket.AF_INET
+        else:
+            self.af = socket.AF_UNSPEC
         self.hostname = \
             None if self.preauth_tunnel else repos.gethost()
         self.port = repos.getport()
@@ -95,10 +103,10 @@ class IMAPServer:
         self.tlslevel = repos.gettlslevel()
 
         self.oauth2_refresh_token = repos.getoauth2_refresh_token()
+        self.oauth2_access_token = repos.getoauth2_access_token()
         self.oauth2_client_id = repos.getoauth2_client_id()
         self.oauth2_client_secret = repos.getoauth2_client_secret()
         self.oauth2_request_url = repos.getoauth2_request_url()
-        self.oauth2_access_token = None
 
         self.delim = None
         self.root = None
@@ -212,7 +220,7 @@ class IMAPServer:
 
 
     def __xoauth2handler(self, response):
-        if self.oauth2_refresh_token is None:
+        if self.oauth2_refresh_token is None and self.oauth2_access_token is None:
             return None
 
         if self.oauth2_access_token is None:
@@ -227,7 +235,13 @@ class IMAPServer:
             self.ui.debug('imap', 'xoauth2handler: url "%s"' % self.oauth2_request_url)
             self.ui.debug('imap', 'xoauth2handler: params "%s"' % params)
 
-            response = urllib.urlopen(self.oauth2_request_url, urllib.urlencode(params)).read()
+            original_socket = socket.socket
+            socket.socket = self.proxied_socket
+            try:
+                response = urllib.urlopen(self.oauth2_request_url, urllib.urlencode(params)).read()
+            finally:
+                socket.socket = original_socket
+
             resp = json.loads(response)
             self.ui.debug('imap', 'xoauth2handler: response "%s"' % resp)
             self.oauth2_access_token = resp['access_token']
@@ -481,6 +495,7 @@ class IMAPServer:
                         fingerprint=self.fingerprint,
                         use_socket=self.proxied_socket,
                         tls_level=self.tlslevel,
+                        af=self.af,
                         )
                 else:
                     self.ui.connecting(self.hostname, self.port)
@@ -488,6 +503,7 @@ class IMAPServer:
                         self.hostname, self.port,
                         timeout=socket.getdefaulttimeout(),
                         use_socket=self.proxied_socket,
+                        af=self.af,
                         )
 
                 if not self.preauth_tunnel:

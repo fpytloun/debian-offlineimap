@@ -25,11 +25,12 @@ import logging
 from optparse import OptionParser
 
 import offlineimap
-from offlineimap import accounts, threadutil, syncmaster
+from offlineimap import accounts, threadutil, syncmaster, folder
 from offlineimap import globals
 from offlineimap.ui import UI_LIST, setglobalui, getglobalui
 from offlineimap.CustomConfig import CustomConfigParser
 from offlineimap.utils import stacktrace
+from offlineimap.repository import Repository
 
 import traceback
 import collections
@@ -50,11 +51,13 @@ class OfflineImap:
         options, args = self.__parse_cmd_options()
         if options.diagnostics:
             self.__serverdiagnostics(options)
+        elif options.migrate_fmd5:
+            self.__migratefmd5(options)
         else:
             return self.__sync(options)
 
     def __parse_cmd_options(self):
-        parser = OptionParser(version=offlineimap.__bigversion__,
+        parser = OptionParser(version=offlineimap.__version__,
                               description="%s.\n\n%s" %
                               (offlineimap.__copyright__,
                                offlineimap.__license__))
@@ -119,6 +122,10 @@ class OfflineImap:
         parser.add_option("-u", dest="interface",
                   help="specifies an alternative user interface"
                   " (quiet, basic, syslog, ttyui, blinkenlights, machineui)")
+
+        parser.add_option("--migrate-fmd5-using-nametrans",
+                  action="store_true", dest="migrate_fmd5", default=False,
+                  help="migrate FMD5 hashes from versions prior to 6.3.5")
 
         (options, args) = parser.parse_args()
         globals.set_options (options)
@@ -362,10 +369,17 @@ class OfflineImap:
                     accounts.Account.set_abort_event(self.config, 3)
                     if 'thread' in self.ui.debuglist:
                         self.__dumpstacks(5)
+
+                    # Abort after three Ctrl-C keystrokes
+                    self.num_sigterm += 1
+                    if self.num_sigterm >= 3:
+                        getglobalui().warn("Signaled thrice. Aborting!")
+                        sys.exit(1)
                 elif sig == signal.SIGQUIT:
                     stacktrace.dump(sys.stderr)
                     os.abort()
 
+            self.num_sigterm = 0
             signal.signal(signal.SIGHUP, sig_handler)
             signal.signal(signal.SIGUSR1, sig_handler)
             signal.signal(signal.SIGUSR2, sig_handler)
@@ -420,3 +434,21 @@ class OfflineImap:
         for account in allaccounts:
             if account.name not in activeaccounts: continue
             account.serverdiagnostics()
+
+    def __migratefmd5(self, options):
+        activeaccounts = self.config.get("general", "accounts")
+        if options.accounts:
+            activeaccounts = options.accounts
+        activeaccounts = activeaccounts.replace(" ", "")
+        activeaccounts = activeaccounts.split(",")
+        allaccounts = accounts.AccountListGenerator(self.config)
+
+        for account in allaccounts:
+            if account.name not in activeaccounts:
+                continue
+            localrepo = Repository(account, 'local')
+            if localrepo.getfoldertype() != folder.Maildir.MaildirFolder:
+                continue
+            folders = localrepo.getfolders()
+            for f in folders:
+                f.migratefmd5(options.dryrun)

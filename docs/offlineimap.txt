@@ -77,7 +77,7 @@ amounts of data. This option implies the -1 option.
 
   Overrides the accounts section in the config file.
 +
-Allows to specify a particular account or set of accounts to sync without
+Allows one to specify a particular account or set of accounts to sync without
 having to edit the config file.
 
 
@@ -163,6 +163,20 @@ blinkenlights, machineui.
 This option is only applicable in non-verbose mode.
 
 
+--migrate-fmd5-using-nametrans::
+  Migrate FMD5 hashes from versions prior to 6.3.5.
++
+The way that FMD5 hashes are calculated was changed in version 6.3.5 (now using
+the nametrans folder name) introducing a regression which may lead to
+re-uploading all messages. Try and fix the above regression by calculating the
+correct FMD5 values and renaming the corresponding messages.
+
+CAUTION: Since the FMD5 part of the filename changes, this may lead to UID
+conflicts. Ensure to dispose a proper backup of both the cache and the Maildir
+before running this fix as well as verify the results using the `--dry-run'
+flag first.
+
+
 Synchronization Performance
 ---------------------------
 
@@ -211,7 +225,7 @@ in between.
 5. Turn off fsync.
 +
 In the [general] section you can set fsync to True or False. If you want to
-play 110% safe and wait for all operations to hit the disk before continueing,
+play 110% safe and wait for all operations to hit the disk before continuing,
 you can set this to True. If you set it to False, you lose some of that
 safety, trading it for speed.
 
@@ -219,7 +233,7 @@ safety, trading it for speed.
 Upgrading from plain text to SQLite cache format
 ------------------------------------------------
 
-OfflineImap uses a cache to store the last know status of mails (flags etc).
+OfflineImap uses a cache to store the last known status of mails (flags etc).
 
 Historically that has meant plain text files, but recently we introduced
 sqlite-based cache, which helps with performance and CPU usage on large
@@ -382,7 +396,7 @@ You should enable this option with a value like 10.
 
 * OfflineIMAP confused when mails change while in a sync.
 +
-When OfflineIMAP is syncing, some events happening since the invokation on
+When OfflineIMAP is syncing, some events happening since the invocation on
 remote or local side are badly handled. OfflineIMAP won't track for changes
 during the sync.
 
@@ -428,4 +442,4 @@ See Also
 --------
 
   offlineimapui(7), openssl(1), signal(7), sqlite3(1).
-  http://offlineimap.org
+  http://www.offlineimap.org
