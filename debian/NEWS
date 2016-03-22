@@ -1,3 +1,19 @@
+offlineimap (6.7.0+dfsg1-1) unstable; urgency=low
+
+  OfflineIMAP version 6.3.5 introduced a regression by changing the FMD5
+  part of a message's filename. This may cause a complete re-upload of all
+  local emails, since OfflineIMAP believes that all the messages have been
+  removed and adds them back.
+
+  In case you are upgrading from a version older than 6.3.5, you may need
+  to use the '--migrate-fmd5-using-nametrans' option in order to migrate
+  the FMD5 hashes.
+
+  For more information, see:
+  http://www.offlineimap.org/configuration/2016/02/12/debian-upgrade-from-jessie-to-stretch.html
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 22 Mar 2016 09:51:32 +0200
+
 offlineimap (6.6.0~rc3+dfsg1-1) unstable; urgency=medium
 
   OfflineIMAP has now SSL enabled by default to prevent sending private
