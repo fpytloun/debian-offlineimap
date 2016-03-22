@@ -12,7 +12,7 @@ offlineimap (6.7.0+dfsg1-1) unstable; urgency=low
   For more information, see:
   http://www.offlineimap.org/configuration/2016/02/12/debian-upgrade-from-jessie-to-stretch.html
 
- -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 22 Mar 2016 09:51:32 +0200
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 22 Mar 2016 10:11:06 +0200
 
 offlineimap (6.6.0~rc3+dfsg1-1) unstable; urgency=medium
 

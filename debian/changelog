@@ -1,10 +1,20 @@
-offlineimap (6.7.0+dfsg1-1~1.gbp4687d4) UNRELEASED; urgency=low
+offlineimap (6.7.0+dfsg1-1) unstable; urgency=low
 
-  ** SNAPSHOT build @4687d417f59aef630fc46d3225073c638f7ca819 **
+  * New upstream release (Closes: #809402)
+  * Bump Standards-Version to 3.9.7, no changes needed
+  * Remove doc-base from suggested packages.
+    The Debian offlineimap package does not include the OfflineIMAP
+    documentation anymore.
+  * Update d/copyright file (bump Copyright years)
+  * Remove patches that have been applied upstream
+    - Remove 'Abort-after-three-Ctrl-C-keystrokes' patch
+    - Remove 'Fix-typos-in-offlineimap-1-manpage' patch
+  * Detail the use of '--migrate-fmd5-using-nametrans' in d/NEWS.
+    OfflineIMAP version 6.3.5 introduced a regression, and the above option
+    can be used to migrate to newer versions. (Closes: #812108)
+  * Update d/watch file to use the version 4 format
 
-  * UNRELEASED
-
- -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Mon, 21 Mar 2016 15:56:40 +0200
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Tue, 22 Mar 2016 10:11:06 +0200
 
 offlineimap (6.6.1+dfsg1-2) unstable; urgency=low
 
