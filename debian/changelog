@@ -1,3 +1,10 @@
+offlineimap (6.7.0.1+dfsg1-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump Standards-Version to 3.9.8, no changes needed
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Sun, 19 Jun 2016 19:52:45 +0300
+
 offlineimap (6.7.0+dfsg1-1) unstable; urgency=low
 
   * New upstream release (Closes: #809402)
