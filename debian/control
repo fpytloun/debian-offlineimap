@@ -16,7 +16,7 @@ Build-Depends:
  docbook-xsl,
  libxml2-utils
 X-Python-Version: >= 2.7
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 Homepage: http://offlineimap.org/
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/offlineimap.git
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/offlineimap.git
