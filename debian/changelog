@@ -1,3 +1,13 @@
+offlineimap (7.0.5+dfsg1-1) unstable; urgency=medium
+
+  * New upstream version
+  * Use-imaplib2-package-instead-of-embedded-copy.patch is no longer needed.
+    There's new virtual module to use distro-shipped imaplib2 vs.
+    embedded one.
+  * New build dependency on python-six
+
+ -- Filip Pytloun <filip@pytloun.cz>  Thu, 11 Aug 2016 16:21:21 +0200
+
 offlineimap (6.7.0.1+dfsg1-1) unstable; urgency=medium
 
   * New upstream release

@@ -3,18 +3,18 @@ Section: mail
 Priority: optional
 Maintainer: Ilias Tsitsimpis <i.tsitsimpis@gmail.com>
 Uploaders: Dimitri John Ledkov <xnox@debian.org>
-Build-Depends:
- debhelper (>= 9),
- python,
- dh-python,
- python-setuptools,
- faketime,
- python-imaplib2 (>= 2.50),
- asciidoc,
- xsltproc,
- docbook-xml,
- docbook-xsl,
- libxml2-utils
+Build-Depends: asciidoc,
+               debhelper (>= 9),
+               dh-python,
+               docbook-xml,
+               docbook-xsl,
+               faketime,
+               libxml2-utils,
+               python,
+               python-imaplib2 (>= 2.50),
+               python-setuptools,
+               python-six,
+               xsltproc
 X-Python-Version: >= 2.7
 Standards-Version: 3.9.8
 Homepage: http://offlineimap.org/
@@ -23,10 +23,7 @@ Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/offlineimap.git
 
 Package: offlineimap
 Architecture: all
-Depends:
- python-imaplib2 (>= 2.50),
- ${misc:Depends},
- ${python:Depends}
+Depends: python-imaplib2 (>= 2.50), ${misc:Depends}, ${python:Depends}
 Recommends: python-socks
 Suggests: python-kerberos
 Description: IMAP/Maildir synchronization and reader support

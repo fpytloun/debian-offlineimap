@@ -1,3 +1,31 @@
+offlineimap (7.0.5+dfsg1-1) unstable; urgency=medium
+
+  OfflineIMAP is starting a new major release cycle.
+
+  The dabatase for the cache is now sqlite by default. This means downgrading to
+  previous versions is prone to errors if you don't have sqlite enabled in your
+  configuration. All users should enable the sqlite database now to avoid issues.
+  Expect the legacy text files to be deprecated and removed in the future.
+
+  The long time awaited feature to not delete any message while allowing adding
+  new messages and sync flags is now implemented and marked stable.
+
+  Summary of important changes:
+
+  - Passwords are now expected in Unicode almost everywhere. They are used with
+    the UTF-8 charset. However, some configuration options are not UTF-8 friendly
+    mostly because of library limitations (e.g.: `remotepass`).
+
+    Users with Unicode caracters in the passwords are recommended to use a file or
+    `remotepasseval`.
+
+  - The sqlite database is the default.
+
+  - The PID file is no longer used because offlineimap is able to run multiple
+    instances.
+
+ -- Filip Pytloun <filip@pytloun.cz>  Thu, 11 Aug 2016 16:25:15 +0200
+
 offlineimap (6.7.0+dfsg1-1) unstable; urgency=low
 
   OfflineIMAP version 6.3.5 introduced a regression by changing the FMD5

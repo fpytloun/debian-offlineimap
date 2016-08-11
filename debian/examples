@@ -1,2 +1,5 @@
 offlineimap.conf
 offlineimap.conf.minimal
+contrib/systemd/*.target
+contrib/systemd/*.timer
+contrib/systemd/*.service
