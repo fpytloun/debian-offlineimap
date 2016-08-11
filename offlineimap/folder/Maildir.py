@@ -1,5 +1,5 @@
 # Maildir folder support
-# Copyright (C) 2002-2015 John Goerzen & contributors
+# Copyright (C) 2002-2016 John Goerzen & contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@ import socket
 import time
 import re
 import os
+import six
 from sys import exc_info
-from .Base import BaseFolder
 from threading import Lock
 try:
     from hashlib import md5
@@ -32,6 +32,7 @@ except NameError:
     from sets import Set as set
 
 from offlineimap import OfflineImapError, emailutil
+from .Base import BaseFolder
 
 # Find the UID in a message filename
 re_uidmatch = re.compile(',U=(\d+)')
@@ -46,8 +47,8 @@ def _gettimeseq(date=None):
     timelock.acquire()
     try:
         if date is None:
-            date = long(time.time())
-        if timehash.has_key(date):
+            date = int(time.time())
+        if date in timehash:
             timehash[date] += 1
         else:
             timehash[date] = 0
@@ -61,7 +62,6 @@ class MaildirFolder(BaseFolder):
         super(MaildirFolder, self).__init__(name, repository)
         self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
-        self.messagelist = {}
         # check if we should use a different infosep to support Win file systems
         self.wincompatible = self.config.getdefaultboolean(
             "Account "+self.accountname, "maildir-windows-compatible", False)
@@ -72,9 +72,14 @@ class MaildirFolder(BaseFolder):
         # Everything up to the first comma or colon (or ! if Windows):
         self.re_prefixmatch = re.compile('([^'+ self.infosep + ',]*)')
         # folder's md, so we can match with recorded file md5 for validity.
-        self._foldermd5 = md5(self.getvisiblename()).hexdigest()
+        self._foldermd5 = md5(self.getvisiblename().encode('utf-8')).hexdigest()
         # Cache the full folder path, as we use getfullname() very often.
         self._fullname = os.path.join(self.getroot(), self.getname())
+        # Modification time from 'Date' header.
+        utime_from_header_global = self.config.getdefaultboolean(
+            "general", "utime_from_header", False)
+        self._utime_from_header = self.config.getdefaultboolean(
+            self.repoconfname, "utime_from_header", utime_from_header_global)
 
     # Interface from BaseFolder
     def getfullname(self):
@@ -98,7 +103,7 @@ class MaildirFolder(BaseFolder):
         if not timestampmatch:
             return True
         timestampstr = timestampmatch.group()
-        timestamplong = long(timestampstr)
+        timestamplong = int(timestampstr)
         if(timestamplong < time.mktime(date)):
             return False
         else:
@@ -129,10 +134,17 @@ class MaildirFolder(BaseFolder):
         foldermatch = folderstr in filename
         # If there was no folder MD5 specified, or if it mismatches,
         # assume it is a foreign (new) message and ret: uid, fmd5 = None, None
+
+        # XXX: This is wrong behaviour: if FMD5 is missing or mismatches, assume
+        # the mail is new and **fix UID to None** to avoid any conflict.
+
+        # XXX: If UID is missing, I have no idea what FMD5 can do. Should be
+        # fixed to None in this case, too.
+
         if foldermatch:
             uidmatch = re_uidmatch.search(filename)
             if uidmatch:
-                uid = long(uidmatch.group(1))
+                uid = int(uidmatch.group(1))
         flagmatch = self.re_flagmatch.search(filename)
         if flagmatch:
             flags = set((c for c in flagmatch.group(1)))
@@ -183,7 +195,7 @@ class MaildirFolder(BaseFolder):
                     uid = nouidcounter
                     nouidcounter -= 1
                 else:
-                    uid = long(uidmatch.group(1))
+                    uid = int(uidmatch.group(1))
             if min_uid != None and uid > 0 and uid < min_uid:
                 continue
             if min_date != None and not self._iswithintime(filename, min_date):
@@ -205,7 +217,7 @@ class MaildirFolder(BaseFolder):
                 retval[uid]['filename'] = filepath
         if min_date != None:
             # Re-include messages with high enough uid's.
-            positive_uids = filter(lambda uid: uid > 0, retval)
+            positive_uids = [uid for uid in retval if uid > 0]
             if positive_uids:
                 min_uid = min(positive_uids)
                 for uid in date_excludees.keys():
@@ -226,7 +238,7 @@ class MaildirFolder(BaseFolder):
                 sorted(statusfolder.getmessageuidlist()):
             return True
         # Also check for flag changes, it's quick on a Maildir.
-        for (uid, message) in self.getmessagelist().iteritems():
+        for (uid, message) in self.getmessagelist().items():
             if message['flags'] != statusfolder.getmessageflags(uid):
                 return True
         return False  # Nope, nothing changed.
@@ -243,10 +255,6 @@ class MaildirFolder(BaseFolder):
             self.messagelist = self._scanfolder(min_date=min_date,
                 min_uid=min_uid)
             self.ui.messagelistloaded(self.repository, self, self.getmessagecount())
-
-    # Interface from BaseFolder
-    def getmessagelist(self):
-        return self.messagelist
 
     # Interface from BaseFolder
     def getmessage(self, uid):
@@ -309,8 +317,11 @@ class MaildirFolder(BaseFolder):
                         time.sleep(0.23)
                         continue
                     severity = OfflineImapError.ERROR.MESSAGE
-                    raise OfflineImapError("Unique filename %s already exists."%
-                        filename, severity), None, exc_info()[2]
+                    six.reraise(OfflineImapError,
+                                OfflineImapError(
+                                    "Unique filename %s already exists."%
+                                    filename, severity),
+                                exc_info()[2])
                 else:
                     raise
 
@@ -370,7 +381,7 @@ class MaildirFolder(BaseFolder):
         messagename = self.new_message_filename(uid, flags, date=message_timestamp)
         tmpname = self.save_to_tmp_file(messagename, content)
 
-        if self.utime_from_header:
+        if self._utime_from_header is True:
             try:
                 date = emailutil.get_message_date(content, 'Date')
                 if date is not None:
@@ -430,10 +441,12 @@ class MaildirFolder(BaseFolder):
                 os.rename(os.path.join(self.getfullname(), oldfilename),
                           os.path.join(self.getfullname(), newfilename))
             except OSError as e:
-                raise OfflineImapError("Can't rename file '%s' to '%s': %s" % (
-                                       oldfilename, newfilename, e[1]),
-                                       OfflineImapError.ERROR.FOLDER), \
-                      None, exc_info()[2]
+                six.reraise(OfflineImapError,
+                            OfflineImapError(
+                                "Can't rename file '%s' to '%s': %s"%
+                                (oldfilename, newfilename, e[1]),
+                                OfflineImapError.ERROR.FOLDER),
+                            exc_info()[2])
 
             self.messagelist[uid]['flags'] = flags
             self.messagelist[uid]['filename'] = newfilename
@@ -449,7 +462,8 @@ class MaildirFolder(BaseFolder):
         """
 
         if not uid in self.messagelist:
-            raise OfflineImapError("Cannot change unknown Maildir UID %s"% uid)
+            raise OfflineImapError("Cannot change unknown Maildir UID %s"% uid,
+                                   OfflineImapError.ERROR.MESSAGE)
         if uid == new_uid: return
 
         oldfilename = self.messagelist[uid]['filename']
@@ -495,7 +509,7 @@ class MaildirFolder(BaseFolder):
         """
         oldfmd5 = md5(self.name).hexdigest()
         msglist = self._scanfolder()
-        for mkey, mvalue in msglist.iteritems():
+        for mkey, mvalue in msglist.items():
             filename = os.path.join(self.getfullname(), mvalue['filename'])
             match = re.search("FMD5=([a-fA-F0-9]+)", filename)
             if match is None:
@@ -511,10 +525,12 @@ class MaildirFolder(BaseFolder):
                     try:
                         os.rename(filename, newfilename)
                     except OSError as e:
-                        raise OfflineImapError(
-                            "Can't rename file '%s' to '%s': %s" % (
-                                filename, newfilename, e[1]),
-                            OfflineImapError.ERROR.FOLDER), None, exc_info()[2]
+                        six.reraise(OfflineImapError,
+                                OfflineImapError(
+                                    "Can't rename file '%s' to '%s': %s"%
+                                    (filename, newfilename, e[1]),
+                                    OfflineImapError.ERROR.FOLDER),
+                                exc_info()[2])
             elif match.group(1) != self._foldermd5:
                 self.ui.warn(("Inconsistent FMD5 for file `%s':"
                               " Neither `%s' nor `%s' found")

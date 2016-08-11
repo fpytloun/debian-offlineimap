@@ -5,7 +5,9 @@
 
 # OfflineIMAP
 
-***Get the emails where you need them.***
+***"Get the emails where you need them."***
+
+[Official offlineimap][offlineimap].
 
 ## Description
 
@@ -78,11 +80,12 @@ Bugs, issues and contributions can be requested to both the mailing list or the
 * And finally, [the wiki][wiki].
 
 
-## Requirements
+## Requirements & dependencies
 
-* Python v2.7
-* Python SQlite (optional while recommended)
-* Python json and urllib (used for XOAuth2 authentication)
+* Python v2.7+
+* Python v3.4+ ***(experimental)***
+* six (required)
+* imaplib2 >= 2.55 (optional)
 
 
 ## Documentation

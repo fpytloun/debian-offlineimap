@@ -37,7 +37,7 @@ class MaildirRepository(BaseRepository):
 
         # Create the top-level folder if it doesn't exist
         if not os.path.isdir(self.root):
-            os.mkdir(self.root, 0o700)
+            os.makedirs(self.root, 0o700)
 
         # Create the keyword->char mapping
         self.keyword2char = dict()
@@ -146,8 +146,7 @@ class MaildirRepository(BaseRepository):
             if foldername == f.name:
                 return f
         raise OfflineImapError("getfolder() asked for a nonexisting "
-                               "folder '%s'."% foldername,
-                               OfflineImapError.ERROR.FOLDER)
+            "folder '%s'."% foldername, OfflineImapError.ERROR.FOLDER)
 
     def _getfolders_scandir(self, root, extension=None):
         """Recursively scan folder 'root'; return a list of MailDirFolder

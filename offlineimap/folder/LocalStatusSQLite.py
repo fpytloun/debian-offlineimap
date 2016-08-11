@@ -1,5 +1,5 @@
 # Local status cache virtual folder: SQLite backend
-# Copyright (C) 2009-2011 Stewart Smith and contributors
+# Copyright (C) 2009-2016 Stewart Smith and contributors.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -14,15 +14,41 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
 import os
+import sqlite3 as sqlite
 from sys import exc_info
 from threading import Lock
-try:
-    import sqlite3 as sqlite
-except:
-    pass #fail only if needed later on, not on import
+
+import six
 
 from .Base import BaseFolder
+
+
+class DatabaseFileLock(object):
+    """Lock at database file level."""
+
+    def __init__(self):
+        self._lock = Lock()
+        self._counter = 0
+
+    def __enter__(self):
+        self._lock.acquire()
+
+    def __exit__(self, typ, value, tb):
+        self._lock.release()
+
+    def registerNewUser(self):
+        self._counter += 1
+
+    def removeOneUser(self):
+        self._counter -= 1
+
+    def getLock(self):
+        return self._lock
+
+    def shouldClose(self):
+        return self._counter < 1
 
 
 class LocalStatusSQLiteFolder(BaseFolder):
@@ -42,13 +68,14 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     # Current version of our db format.
     cur_version = 2
+    # Keep track on how many threads need access to the database.
+    locks = {} # Key: filename, value: DatabaseFileLock instance.
 
     def __init__(self, name, repository):
-        self.sep = '.' # Needs to be set before super.__init__()
+        self.sep = '.' # Needs to be set before super().__init__().
         super(LocalStatusSQLiteFolder, self).__init__(name, repository)
         self.root = repository.root
         self.filename = os.path.join(self.getroot(), self.getfolderbasename())
-        self.messagelist = {}
 
         self._newfolder = False        # Flag if the folder is new.
 
@@ -59,42 +86,53 @@ class LocalStatusSQLiteFolder(BaseFolder):
             raise UserWarning("SQLite database path '%s' is not a directory."%
                 dirname)
 
-        # This lock protects against concurrent writes in same connection.
-        self._dblock = Lock()
         self.connection = None
+        # The lock serialize the writing/open/close of database accross threads.
+        if self.filename not in LocalStatusSQLiteFolder.locks:
+            LocalStatusSQLiteFolder.locks[self.filename] = DatabaseFileLock()
+        self._databaseFileLock = LocalStatusSQLiteFolder.locks[self.filename]
 
     def openfiles(self):
-        # Try to establish connection, no need for threadsafety in __init__.
-        try:
-            self.connection = sqlite.connect(self.filename, check_same_thread=False)
-        except NameError:
-            # sqlite import had failed.
-            raise UserWarning("SQLite backend chosen, but cannot connect "
-                "with available bindings to '%s'. Is the sqlite3 package "
-                "installed?."% self.filename), None, exc_info()[2]
-        except sqlite.OperationalError as e:
-            # Operation had failed.
-            raise UserWarning("cannot open database file '%s': %s.\nYou might "
-                "want to check the rights to that file and if it cleanly opens "
-                "with the 'sqlite<3>' command."%
-                (self.filename, e)), None, exc_info()[2]
-
         # Make sure sqlite is in multithreading SERIALIZE mode.
         assert sqlite.threadsafety == 1, 'Your sqlite is not multithreading safe.'
 
-        # Test if db version is current enough and if db is readable.
-        try:
-            cursor = self.connection.execute(
-                "SELECT value from metadata WHERE key='db_version'")
-        except sqlite.DatabaseError:
-            # db file missing or corrupt, recreate it.
-            self.__create_db()
-        else:
-            # Fetch db version and upgrade if needed.
-            version = int(cursor.fetchone()[0])
-            if version < LocalStatusSQLiteFolder.cur_version:
-                self.__upgrade_db(version)
+        with self._databaseFileLock.getLock():
+            # Try to establish connection, no need for threadsafety in __init__.
+            try:
+                self.connection = sqlite.connect(self.filename,
+                                                 check_same_thread=False)
+                self._databaseFileLock.registerNewUser()
+            except sqlite.OperationalError as e:
+                # Operation had failed.
+                six.reraise(UserWarning,
+                            UserWarning(
+                                "cannot open database file '%s': %s.\nYou might"
+                                " want to check the rights to that file and if "
+                                "it cleanly opens with the 'sqlite<3>' command"%
+                                (self.filename, e)),
+                            exc_info()[2])
 
+            # Test if db version is current enough and if db is readable.
+            try:
+                cursor = self.connection.execute(
+                    "SELECT value from metadata WHERE key='db_version'")
+            except sqlite.DatabaseError:
+                # db file missing or corrupt, recreate it.
+                self.__create_db()
+            else:
+                # Fetch db version and upgrade if needed.
+                version = int(cursor.fetchone()[0])
+                if version < LocalStatusSQLiteFolder.cur_version:
+                    self.__upgrade_db(version)
+
+    def purge(self):
+        """Remove any pre-existing database. Do not call in dry-run mode."""
+
+        try:
+            os.unlink(self.filename)
+        except OSError as e:
+            self.ui.debug('', "could not remove file %s: %s"%
+                (self.filename, e))
 
     def storesmessages(self):
         return False
@@ -106,40 +144,32 @@ class LocalStatusSQLiteFolder(BaseFolder):
     def isnewfolder(self):
         return self._newfolder
 
-
-    # Interface from LocalStatusFolder
-    def deletemessagelist(self):
-        """Delete all messages in the db."""
-
-        self.__sql_write('DELETE FROM status')
-
-
-    def __sql_write(self, sql, vars=None, executemany=False):
+    def __sql_write(self, sql, args=None, executemany=False):
         """Execute some SQL, retrying if the db was locked.
 
         :param sql: the SQL string passed to execute()
-        :param vars: the variable values to `sql`. E.g. (1,2) or {uid:1,
+        :param args: the variable values to `sql`. E.g. (1,2) or {uid:1,
             flags:'T'}. See sqlite docs for possibilities.
         :param executemany: bool indicating whether we want to
             perform conn.executemany() or conn.execute().
-        :returns: the Cursor() or raises an Exception"""
+        :returns: None or raises an Exception."""
 
         success = False
         while not success:
-            self._dblock.acquire()
             try:
-                if vars is None:
-                    if executemany:
-                        cursor = self.connection.executemany(sql)
+                with self._databaseFileLock.getLock():
+                    if args is None:
+                        if executemany:
+                            self.connection.executemany(sql)
+                        else:
+                            self.connection.execute(sql)
                     else:
-                        cursor = self.connection.execute(sql)
-                else:
-                    if executemany:
-                        cursor = self.connection.executemany(sql, vars)
-                    else:
-                        cursor = self.connection.execute(sql, vars)
-                success = True
-                self.connection.commit()
+                        if executemany:
+                            self.connection.executemany(sql, args)
+                        else:
+                            self.connection.execute(sql, args)
+                    success = True
+                    self.connection.commit()
             except sqlite.OperationalError as e:
                 if e.args[0] == 'cannot commit - no transaction is active':
                     pass
@@ -148,17 +178,14 @@ class LocalStatusSQLiteFolder(BaseFolder):
                     success = False
                 else:
                     raise
-            finally:
-                self._dblock.release()
-        return cursor
 
     def __upgrade_db(self, from_ver):
         """Upgrade the sqlite format from version 'from_ver' to current"""
 
-        if hasattr(self, 'connection'):
-            self.connection.close() #close old connections first
+        if self.connection is not None:
+            self.connection.close() # Close old connections first.
         self.connection = sqlite.connect(self.filename,
-                                         check_same_thread = False)
+                                         check_same_thread=False)
 
         # Upgrade from database version 1 to version 2
         # This change adds labels and mtime columns, to be used by Gmail IMAP and Maildir folders.
@@ -181,8 +208,8 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
         self.connection must point to the opened and valid SQlite
         database connection."""
-        self.ui._msg('Creating new Local Status db for %s:%s' \
-                         % (self.repository, self))
+        self.ui._msg('Creating new Local Status db for %s:%s'%
+                     (self.repository, self))
         self.connection.executescript("""
         CREATE TABLE metadata (key VARCHAR(50) PRIMARY KEY, value VARCHAR(128));
         INSERT INTO metadata VALUES('db_version', '2');
@@ -199,7 +226,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
     # Interface from BaseFolder
     def cachemessagelist(self):
-        self.messagelist = {}
+        self.dropmessagelistcache()
         cursor = self.connection.execute('SELECT id,flags,mtime,labels from status')
         for row in cursor:
             uid = row[0]
@@ -225,13 +252,13 @@ class LocalStatusSQLiteFolder(BaseFolder):
             self.messagelist[uid]['mtime'] = row[2]
 
     def closefiles(self):
-        try:
-            self.connection.close()
-        except:
-            pass
-
-    def dropmessagelistcache(self):
-        self.messagelist = {}
+        with self._databaseFileLock.getLock():
+            self._databaseFileLock.removeOneUser()
+            if self._databaseFileLock.shouldClose():
+                try:
+                    self.connection.close()
+                except:
+                    pass
 
     # Interface from LocalStatusFolder
     def save(self):
@@ -291,11 +318,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
 
 
     # Interface from BaseFolder
-    def getmessagelist(self):
-        return self.messagelist
-
-
-    # Interface from BaseFolder
     def savemessage(self, uid, content, flags, rtime, mtime=0, labels=set()):
         """Writes a new message, with the specified uid.
 
@@ -307,7 +329,7 @@ class LocalStatusSQLiteFolder(BaseFolder):
             # We cannot assign a uid.
             return uid
 
-        if self.uidexists(uid):     # already have it
+        if self.uidexists(uid):     # Already have it.
             self.savemessageflags(uid, flags)
             return uid
 
@@ -411,6 +433,6 @@ class LocalStatusSQLiteFolder(BaseFolder):
         if not len(uidlist):
             return
         # arg2 needs to be an iterable of 1-tuples [(1,),(2,),...]
-        self.__sql_write('DELETE FROM status WHERE id=?', zip(uidlist, ), True)
+        self.__sql_write('DELETE FROM status WHERE id=?', list(zip(uidlist, )), True)
         for uid in uidlist:
             del(self.messagelist[uid])

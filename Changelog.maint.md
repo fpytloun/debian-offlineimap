@@ -15,6 +15,20 @@ This is the Changelog of the maintenance branch.
 	If anyone volunteers to maintain it and backport patches, let us know!
 
 
+### OfflineIMAP v6.7.0.3 (2016-07-26)
+
+#### Bug Fixes
+
+* sqlite: properly serialize operations on the database files
+
+
+### OfflineIMAP v6.7.0.2 (2016-07-22)
+
+#### Bug Fixes
+
+* sqlite: close the database when no more threads need connection.
+
+
 ### OfflineIMAP v6.7.0.1 (2016-06-08)
 
 #### Bug Fixes
