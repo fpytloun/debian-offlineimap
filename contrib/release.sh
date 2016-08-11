@@ -21,6 +21,7 @@ __VERSION__='v0.3'
 SPHINXBUILD=sphinx-build
 
 MAILING_LIST='offlineimap-project@lists.alioth.debian.org'
+GITHUB_FILE_LINK_PREFIX='https://raw.githubusercontent.com/OfflineIMAP/offlineimap'
 
 DOCSDIR='docs'
 ANNOUNCE_MAGIC='#### Notes '
@@ -29,7 +30,6 @@ CHANGELOG='Changelog.md'
 CACHEDIR='.git/offlineimap-release'
 WEBSITE='website'
 WEBSITE_LATEST="${WEBSITE}/_data/latest.yml"
-ME='Nicolas Sebrecht'
 
 TMP_CHANGELOG_EXCERPT="${CACHEDIR}/changelog.excerpt.md"
 TMP_CHANGELOG_EXCERPT_OLD="${TMP_CHANGELOG_EXCERPT}.old"
@@ -138,6 +138,14 @@ function checkout_next () {
 }
 
 
+function merge_maint () {
+  debug 'in merge_maint'
+  git merge --quiet -Xours maint || {
+    die 7 "Could not merge 'maint' branch"
+  }
+}
+
+
 function get_version () {
   debug 'in get_version'
   echo "v$(./offlineimap.py --version)"
@@ -155,8 +163,7 @@ function update_offlineimap_version () {
 #
 function get_git_history () {
   debug 'in get_git_history'
-  git log --format='- %h %s. [%aN]' --no-merges  "${1}.." | \
-          sed -r -e "s, \[${ME}\]$,,"
+  git log --format='- %h %s. [%aN]' --no-merges  "${1}.."
 }
 
 
@@ -165,7 +172,6 @@ function get_git_history () {
 #
 function get_git_who () {
   debug 'in get_git_who'
-  echo
   git shortlog --no-merges -sn "${1}.." | \
           sed -r -e 's, +([0-9]+)\t(.*),- \2 (\1),'
 }
@@ -175,8 +181,8 @@ function get_git_who () {
 #
 # $1: new version
 # $2: shortlog
-function changelog_template () {
-  debug 'in changelog_template'
+function changelog_template_part1 () {
+  debug 'in changelog_template_part1'
   cat <<EOF
 // vim: expandtab ts=2 syntax=markdown
 
@@ -197,9 +203,13 @@ function changelog_template () {
 
 #### Authors
 
-The authors of this release.
+EOF
+}
 
-// Use list syntax with '- '
+
+function changelog_template_part2 () {
+  debug 'in changelog_template_part2'
+  cat <<EOF
 
 #### Features
 
@@ -231,9 +241,10 @@ function update_changelog () {
   # Write Changelog excerpt.
   if test ! -f "$TMP_CHANGELOG_EXCERPT"
   then
-    changelog_template "$1" > "$TMP_CHANGELOG_EXCERPT"
-    get_git_history "$2" >> "$TMP_CHANGELOG_EXCERPT"
+    changelog_template_part1 "$1" > "$TMP_CHANGELOG_EXCERPT"
     get_git_who "$2" >> "$TMP_CHANGELOG_EXCERPT"
+    changelog_template_part2 >> "$TMP_CHANGELOG_EXCERPT"
+    get_git_history "$2" >> "$TMP_CHANGELOG_EXCERPT"
     edit_file "the Changelog excerpt" $TMP_CHANGELOG_EXCERPT
 
     # Remove comments.
@@ -376,7 +387,8 @@ Downloads:
   http://github.com/OfflineIMAP/offlineimap/archive/${1}.zip
 
 Pip:
-  pip install --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
+  wget "${GITHUB_FILE_LINK_PREFIX}/${1}/requirements.txt" -O requirements.txt
+  pip install -r ./requirements.txt --user git+https://github.com/OfflineIMAP/offlineimap.git@${1}
 EOF
 }
 
@@ -443,8 +455,12 @@ function run () {
   build_announce "$new_version" "$previous_version"
   edit_announce
 
+  # Wait for the mainline and announce to be built to not include commits from
+  # maint.
+  merge_maint
   git_release $new_version
 
+  # Wait for all the Changelogs to be up-to-date in next.
   update_website $new_version
 }
 
